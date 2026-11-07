@@ -2,6 +2,7 @@
 **/bin/
 **/obj/
 **/TestResults/
+**/coverage-report/
 **/.vs/
 **/.vscode/
 **/*.user

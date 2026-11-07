@@ -4,8 +4,9 @@
     Test platform: xUnit v3 (4.x) on Microsoft.Testing.Platform (MTP) v2. See "Test platform" in README.md.
 
     This project intentionally differs from `dotnet new xunit`, which still generates xUnit v2 on VSTest:
-      - OutputType=Exe: an MTP test project is a self-contained test runner executable
-        (it can be run directly, or via `dotnet run`).
+      - OutputType=Exe: the test project is a self-contained test runner executable. With the
+        argument server (as used by dotnet test and the VS Code Testing view) it runs on MTP;
+        started directly or via dotnet run, it uses xUnit's own console runner instead.
       - No Microsoft.NET.Test.Sdk, xunit.runner.visualstudio or coverlet.collector: these are
         VSTest-only. Adding them back does not help; `dotnet test` needs the MTP opt-in in global.json.
       - Coverage comes from Microsoft.Testing.Extensions.CodeCoverage (see README.md for usage).
