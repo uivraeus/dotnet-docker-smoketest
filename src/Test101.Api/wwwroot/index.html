@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Test101 Todos</title>
+  <style>
+    :root { color-scheme: light dark; --accent: #512bd4; font-family: system-ui, sans-serif; }
+    body { max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+    h1 { color: var(--accent); margin-bottom: .25rem; }
+    #info { font-size: .85rem; opacity: .75; margin-bottom: 1.5rem; }
+    form { display: flex; gap: .5rem; }
+    input[type=text] { flex: 1; padding: .5rem; font: inherit; }
+    button { padding: .5rem 1rem; font: inherit; cursor: pointer; }
+    ul { list-style: none; padding: 0; }
+    li { display: flex; align-items: center; gap: .5rem; padding: .4rem 0; border-bottom: 1px solid #8884; }
+    li span { flex: 1; }
+    li.done span { text-decoration: line-through; opacity: .6; }
+  </style>
+</head>
+<body>
+  <h1>Test101 Todos</h1>
+  <div id="info">Loading…</div>
+
+  <form id="add">
+    <input id="title" type="text" placeholder="What needs doing?" maxlength="200" required>
+    <button>Add</button>
+  </form>
+  <ul id="list"></ul>
+
+  <script type="module">
+    const api = '/api/todos';
+    const list = document.querySelector('#list');
+
+    async function refresh() {
+      const todos = await (await fetch(api)).json();
+      list.replaceChildren(...todos.map(render));
+    }
+
+    function render(todo) {
+      const li = document.createElement('li');
+      li.className = todo.isComplete ? 'done' : '';
+      const box = Object.assign(document.createElement('input'), { type: 'checkbox', checked: todo.isComplete });
+      box.onchange = () => send('PUT', `${api}/${todo.id}`, { title: todo.title, isComplete: box.checked });
+      const text = Object.assign(document.createElement('span'), { textContent: todo.title });
+      const del = Object.assign(document.createElement('button'), { textContent: '✕', title: 'Delete' });
+      del.onclick = () => send('DELETE', `${api}/${todo.id}`);
+      li.append(box, text, del);
+      return li;
+    }
+
+    async function send(method, url, body) {
+      await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: body && JSON.stringify(body) });
+      await refresh();
+    }
+
+    document.querySelector('#add').onsubmit = async e => {
+      e.preventDefault();
+      const input = document.querySelector('#title');
+      await send('POST', api, { title: input.value });
+      input.value = '';
+    };
+
+    const info = await (await fetch('/api/info')).json();
+    document.querySelector('#info').textContent = `${info.framework} · ${info.environment} · host ${info.host}`;
+    await refresh();
+  </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+# Keep the build context small and avoid leaking host build output into the image
+**/bin/
+**/obj/
+**/TestResults/
+**/.vs/
+**/.vscode/
+**/*.user
+**/.git
+**/.gitignore
+**/.dockerignore
+**/Dockerfile*
+**/compose*.y*ml
+**/README.md
+**/node_modules/
+**/.env

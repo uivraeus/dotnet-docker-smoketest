@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // Requires the C# extension (ms-dotnettools.csharp) or C# Dev Kit
+      "name": "Test101.Api (http)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/Test101.Api/bin/Debug/net10.0/Test101.Api.dll",
+      "cwd": "${workspaceFolder}/src/Test101.Api",
+      "launchSettingsProfile": "http",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    {
+      "name": "Attach to process",
+      "type": "coreclr",
+      "request": "attach"
+    }
+  ]
+}
