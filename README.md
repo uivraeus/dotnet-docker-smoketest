@@ -60,7 +60,7 @@ Steps 1–6 need only the .NET SDK, steps 7–8 also need VS Code, and steps 9�
 | IDs | `Guid.CreateVersion7()` | Time-ordered UUIDv7 |
 | Solution | `.slnx` (XML solution format) | Default from .NET 10 onward |
 | Build | `Directory.Build.props`, Central Package Management, `global.json` | One place for settings and package versions |
-| Tests | xUnit v3 (4.x), MTP v2, `WebApplicationFactory`, MS Code Coverage | `dotnet test` runs on Microsoft.Testing.Platform (`global.json` → `test.runner`) |
+| Tests | xUnit v3 (4.x) on Microsoft.Testing.Platform (MTP) v2, `WebApplicationFactory`, MS Code Coverage | Current .NET test stack (replaces VSTest); see [Test platform](#test-platform) |
 | Image | `aspnet:10.0-noble-chiseled`, non-root, port 8080, BuildKit cache mounts | Distroless image with a small attack surface |
 
 ```
@@ -112,11 +112,38 @@ dotnet watch --project src/DotnetDockerSmoketest.Api        # hot reload
 ## Test
 
 ```bash
-dotnet test                                   # all tests (MTP runner)
+dotnet test                                   # all tests
+dotnet test --filter-method "*Crud*"          # xUnit v3 filter syntax
+dotnet test --coverage                        # -> TestResults/*.coverage (binary)
 dotnet test --coverage --coverage-output-format cobertura
-                                              # -> TestResults/*.cobertura.xml
-dotnet test -- --filter-method "*Crud*"       # xUnit v3 filter syntax
+                                              # -> TestResults/*.cobertura.xml (for CI tools)
+dotnet run --project tests/DotnetDockerSmoketest.Api.Tests
+                                              # the test project is itself a runnable executable
 ```
+
+### Test platform
+
+The tests use **xUnit v3 (4.x)** on **Microsoft.Testing.Platform (MTP) v2**. This is the
+current .NET test stack, which replaces the older **VSTest** platform. It differs from what
+`dotnet new xunit` generates (xUnit v2 on VSTest), and that has consequences:
+
+- **The `global.json` setting is required.** xUnit v3 4.x supports only MTP v2.
+  `"test": { "runner": "Microsoft.Testing.Platform" }` in `global.json` switches
+  `dotnet test` to MTP mode (.NET 10 SDK or later). Without it, `dotnet test` fails with
+  *"Testing with VSTest target is no longer supported by Microsoft.Testing.Platform on
+  .NET 10 SDK and later"*.
+- **The test project is an executable.** `OutputType` is `Exe`, and the project contains
+  its own test runner. `dotnet test` builds and starts it, and so do `dotnet run` and
+  running the binary directly.
+- **There are no VSTest packages.** `Microsoft.NET.Test.Sdk`, `xunit.runner.visualstudio`
+  and `coverlet.collector` are missing on purpose. They only work with VSTest, so adding
+  them back fixes nothing.
+- **Coverage** comes from `Microsoft.Testing.Extensions.CodeCoverage` (`--coverage`). Its
+  default output is Microsoft's binary `.coverage` format. Use
+  `--coverage-output-format cobertura` for CI tools and ReportGenerator.
+- **VSTest-only tooling won't work.** That includes coverlet, VSTest-based CI tasks, and
+  the old `dotnet test -- <runner args>` argument syntax. In MTP mode, options such as
+  `--filter-method` are passed directly.
 
 ## Container
 
@@ -175,5 +202,9 @@ because the daemon makes those requests itself, outside the bridge.
 
 ### `dotnet test` reports an error about VSTest or the test runner
 
-`global.json` switches `dotnet test` to Microsoft.Testing.Platform, which requires the
-.NET 10 SDK. Check that `dotnet --version` reports 10.0.x when run from the repo root.
+`dotnet test` must run in Microsoft.Testing.Platform mode (see
+[Test platform](#test-platform)). Check that:
+
+- `global.json` still contains `"test": { "runner": "Microsoft.Testing.Platform" }`.
+- `dotnet --version` reports 10.0.x or later when run from the repo root. Older SDKs
+  ignore the setting.
