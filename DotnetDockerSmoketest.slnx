@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DotnetDockerSmoketest.Api/DotnetDockerSmoketest.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DotnetDockerSmoketest.Api.Tests/DotnetDockerSmoketest.Api.Tests.csproj" />
+  </Folder>
+</Solution>

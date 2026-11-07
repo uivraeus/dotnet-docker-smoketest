@@ -12,13 +12,13 @@ WORKDIR /src
 # Copy only what restore needs first, so the restore layer is cached until
 # a project/package file actually changes.
 COPY global.json Directory.Build.props Directory.Packages.props ./
-COPY src/Test101.Api/Test101.Api.csproj src/Test101.Api/
+COPY src/DotnetDockerSmoketest.Api/DotnetDockerSmoketest.Api.csproj src/DotnetDockerSmoketest.Api/
 RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
-    dotnet restore src/Test101.Api/Test101.Api.csproj -a $TARGETARCH
+    dotnet restore src/DotnetDockerSmoketest.Api/DotnetDockerSmoketest.Api.csproj -a $TARGETARCH
 
 COPY src/ src/
 RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
-    dotnet publish src/Test101.Api/Test101.Api.csproj \
+    dotnet publish src/DotnetDockerSmoketest.Api/DotnetDockerSmoketest.Api.csproj \
         -c $CONFIGURATION -a $TARGETARCH --no-restore \
         -o /app
 
@@ -27,9 +27,9 @@ RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
 # ---------------------------------------------------------------------------
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0 AS test
 WORKDIR /src
-COPY global.json Directory.Build.props Directory.Packages.props Test101.slnx ./
-COPY src/Test101.Api/Test101.Api.csproj src/Test101.Api/
-COPY tests/Test101.Api.Tests/Test101.Api.Tests.csproj tests/Test101.Api.Tests/
+COPY global.json Directory.Build.props Directory.Packages.props DotnetDockerSmoketest.slnx ./
+COPY src/DotnetDockerSmoketest.Api/DotnetDockerSmoketest.Api.csproj src/DotnetDockerSmoketest.Api/
+COPY tests/DotnetDockerSmoketest.Api.Tests/DotnetDockerSmoketest.Api.Tests.csproj tests/DotnetDockerSmoketest.Api.Tests/
 RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
     dotnet restore
 COPY src/ src/
@@ -48,4 +48,4 @@ WORKDIR /app
 COPY --from=build --link /app .
 USER $APP_UID
 EXPOSE 8080
-ENTRYPOINT ["dotnet", "Test101.Api.dll"]
+ENTRYPOINT ["dotnet", "DotnetDockerSmoketest.Api.dll"]

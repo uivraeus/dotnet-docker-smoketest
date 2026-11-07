@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Test101.Api\Test101.Api.csproj" />
+    <ProjectReference Include="..\..\src\DotnetDockerSmoketest.Api\DotnetDockerSmoketest.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>

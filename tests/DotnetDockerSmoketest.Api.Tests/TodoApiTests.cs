@@ -2,9 +2,9 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Test101.Api.Todos;
+using DotnetDockerSmoketest.Api.Todos;
 
-namespace Test101.Api.Tests;
+namespace DotnetDockerSmoketest.Api.Tests;
 
 /// <summary>End-to-end tests that host the real app in-memory via <see cref="WebApplicationFactory{TEntryPoint}"/>.</summary>
 public sealed class TodoApiTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>

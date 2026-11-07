@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 
-namespace Test101.Api.Todos;
+namespace DotnetDockerSmoketest.Api.Todos;
 
 /// <summary>Thread-safe, process-local store. Good enough for a demo; swap for a database in real life.</summary>
 public sealed class InMemoryTodoStore(TimeProvider timeProvider) : ITodoStore

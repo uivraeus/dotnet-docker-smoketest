@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 
-namespace Test101.Api.Todos;
+namespace DotnetDockerSmoketest.Api.Todos;
 
 public static class TodoEndpoints
 {

@@ -1,5 +1,5 @@
 using Scalar.AspNetCore;
-using Test101.Api.Todos;
+using DotnetDockerSmoketest.Api.Todos;
 
 var builder = WebApplication.CreateBuilder(args);
 

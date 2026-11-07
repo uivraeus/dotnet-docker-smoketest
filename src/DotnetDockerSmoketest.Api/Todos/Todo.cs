@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Test101.Api.Todos;
+namespace DotnetDockerSmoketest.Api.Todos;
 
 /// <summary>A single to-do item.</summary>
 public sealed record Todo(Guid Id, string Title, bool IsComplete, DateTimeOffset CreatedAt);

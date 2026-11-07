@@ -1,4 +1,4 @@
-namespace Test101.Api.Todos;
+namespace DotnetDockerSmoketest.Api.Todos;
 
 public interface ITodoStore
 {

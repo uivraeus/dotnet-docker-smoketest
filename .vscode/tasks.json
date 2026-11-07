@@ -5,7 +5,7 @@
       "label": "build",
       "command": "dotnet",
       "type": "process",
-      "args": ["build", "${workspaceFolder}/Test101.slnx", "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary"],
+      "args": ["build", "${workspaceFolder}/DotnetDockerSmoketest.slnx", "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary"],
       "problemMatcher": "$msCompile",
       "group": { "kind": "build", "isDefault": true }
     },
@@ -22,7 +22,7 @@
       "label": "watch",
       "command": "dotnet",
       "type": "process",
-      "args": ["watch", "--project", "${workspaceFolder}/src/Test101.Api"],
+      "args": ["watch", "--project", "${workspaceFolder}/src/DotnetDockerSmoketest.Api"],
       "isBackground": true,
       "problemMatcher": "$msCompile"
     }

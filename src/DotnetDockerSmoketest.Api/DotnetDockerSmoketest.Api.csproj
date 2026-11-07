@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="Test101.Api.Tests" />
+    <InternalsVisibleTo Include="DotnetDockerSmoketest.Api.Tests" />
   </ItemGroup>
 
   <ItemGroup>

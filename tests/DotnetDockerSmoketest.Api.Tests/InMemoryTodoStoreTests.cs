@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Time.Testing;
-using Test101.Api.Todos;
+using DotnetDockerSmoketest.Api.Todos;
 
-namespace Test101.Api.Tests;
+namespace DotnetDockerSmoketest.Api.Tests;
 
 public sealed class InMemoryTodoStoreTests
 {
