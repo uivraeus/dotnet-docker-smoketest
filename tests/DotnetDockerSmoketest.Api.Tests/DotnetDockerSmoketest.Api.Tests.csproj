@@ -1,15 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    Test platform: xUnit v3 (4.x) on Microsoft.Testing.Platform (MTP) v2. See "Test platform" in README.md.
+    Test platform: xUnit v3 (4.x) on Microsoft.Testing.Platform (MTP) v2, with VSTest support kept
+    for IDE tooling. See "Test platform" in README.md.
 
     This project intentionally differs from `dotnet new xunit`, which still generates xUnit v2 on VSTest:
       - OutputType=Exe: the test project is a self-contained test runner executable. With the
-        argument server (as used by dotnet test) it runs on MTP;
-        started directly or via dotnet run, it uses xUnit's own console runner instead.
-      - No Microsoft.NET.Test.Sdk, xunit.runner.visualstudio or coverlet.collector: these are
-        VSTest-only. Adding them back does not help; `dotnet test` needs the MTP opt-in in global.json.
+        argument server (as used by dotnet test) it runs on MTP; started directly or via
+        dotnet run, it uses xUnit's own console runner instead.
+      - dotnet test runs in MTP mode because of the opt-in in global.json.
+      - Microsoft.NET.Test.Sdk and xunit.runner.visualstudio are only for VSTest clients, such as
+        the C# extension's Run/Debug Test CodeLens. Without them, those fail with "testhost.dll was not found".
       - Coverage comes from Microsoft.Testing.Extensions.CodeCoverage (see README.md for usage).
+        coverlet.collector is VSTest-only and not used.
   -->
 
   <PropertyGroup>
@@ -25,6 +28,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
     <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
     <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.runner.visualstudio" />
   </ItemGroup>
 
   <ItemGroup>
