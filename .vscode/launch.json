@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      // Requires the C# extension (ms-dotnettools.csharp) or C# Dev Kit
+      // Requires the C# extension (ms-dotnettools.csharp)
       "name": "DotnetDockerSmoketest.Api (http)",
       "type": "coreclr",
       "request": "launch",
@@ -19,9 +19,28 @@
       }
     },
     {
+      // Debug tests: runs the test executable with xUnit's own console runner (see README.md, "Test platform")
+      "name": "Tests (xUnit runner)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/tests/DotnetDockerSmoketest.Api.Tests/bin/Debug/net10.0/DotnetDockerSmoketest.Api.Tests.dll",
+      "args": ["-method", "${input:testMethodFilter}"],
+      "cwd": "${workspaceFolder}/tests/DotnetDockerSmoketest.Api.Tests/bin/Debug/net10.0",
+      "console": "integratedTerminal"
+    },
+    {
       "name": "Attach to process",
       "type": "coreclr",
       "request": "attach"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "testMethodFilter",
+      "type": "promptString",
+      "description": "Test method filter (fully qualified name, * wildcards allowed)",
+      "default": "*"
     }
   ]
 }

@@ -19,6 +19,13 @@
       "group": { "kind": "test", "isDefault": true }
     },
     {
+      "label": "coverage report",
+      "type": "shell",
+      "command": "rm -rf TestResults coverage-report && dotnet tool restore && dotnet test --coverage --coverage-output-format cobertura && dotnet reportgenerator -reports:'TestResults/**/*.cobertura.xml' -targetdir:coverage-report -reporttypes:'TextSummary;Html' -filefilters:'-*/obj/*' && cat coverage-report/Summary.txt",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
       "label": "watch",
       "command": "dotnet",
       "type": "process",

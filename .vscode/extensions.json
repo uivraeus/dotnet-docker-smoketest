@@ -1,7 +1,11 @@
 {
+  // Only the open-source C# extension is needed. C# Dev Kit is deliberately not used:
+  // its features require signing in with a Microsoft account (see README.md).
   "recommendations": [
     "ms-dotnettools.csharp",
-    "ms-dotnettools.csdevkit",
     "ms-azuretools.vscode-containers"
+  ],
+  "unwantedRecommendations": [
+    "ms-dotnettools.csdevkit"
   ]
 }

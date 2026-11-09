@@ -14,8 +14,7 @@ environment can build, test, run, debug, and containerize a modern .NET web app.
 | .NET SDK | 10.0.100 or later 10.0.x (`global.json` rolls forward to the newest feature band) | build, test, run |
 | Docker Engine with BuildKit/buildx | Docker 23+ (BuildKit is the default builder) | container steps |
 | Docker Compose v2 | any current release | compose step (optional) |
-| VS Code + **C#** extension (`ms-dotnettools.csharp`) | current release | code intelligence, debugging |
-| **C# Dev Kit** extension (`ms-dotnettools.csdevkit`) | current release | Testing view, in-editor coverage (optional; [license terms](https://marketplace.visualstudio.com/items/ms-dotnettools.csdevkit/license) apply) |
+| VS Code + **C#** extension (`ms-dotnettools.csharp`) | current release | code intelligence, debugging of the app and the tests |
 
 ### Scope
 
@@ -35,18 +34,19 @@ Run these from the repository root. Each step checks one capability.
 | 1 | SDK resolves | `dotnet --version` | `10.0.x` |
 | 2 | Restore + build (analyzers, warnings as errors) | `dotnet build` | `0 Warning(s)`, `0 Error(s)` |
 | 3 | Unit + integration tests | `dotnet test` | `succeeded: 12`, `failed: 0` |
-| 4 | Code coverage | `dotnet test --coverage` | a `.coverage` file under `TestResults/` |
+| 4 | Code coverage | see [Coverage reports](#coverage-reports) | `coverage-report/Summary.txt` lists coverage per class |
 | 5 | Run locally | `dotnet run --project src/DotnetDockerSmoketest.Api` | <http://localhost:5101> shows the to-do page |
 | 6 | Hot reload | `dotnet watch --project src/DotnetDockerSmoketest.Api` | code edits apply without a restart |
 | 7 | Debugger | set a breakpoint, press **F5** (see [VS Code](#vs-code)) | the breakpoint is hit |
-| 8 | Test discovery + coverage | **Testing** view: run all, then **Run Tests with Coverage** (needs C# Dev Kit) | `12/12` pass, and the **Test Coverage** view lists per-file coverage |
+| 8 | Test debugging | set a breakpoint in a test, press **F5** and choose "Tests (xUnit runner)" | the breakpoint is hit; afterwards the terminal shows `Total: 12`, `Failed: 0` |
 | 9 | Image build | `docker build -t dotnet-docker-smoketest-api:dev .` | the build completes |
 | 10 | Tests inside the SDK image | `docker build --target test .` | `succeeded: 12` |
 | 11 | Run the image | see [Container](#container) | `/healthz` returns `Healthy` |
 | 12 | Compose | `docker compose up --build` | <http://localhost:8080> shows the to-do page |
 
-Steps 1–6 need only the .NET SDK. Step 7 also needs VS Code with the C# extension, and
-step 8 needs C# Dev Kit as well. Steps 9–12 need Docker.
+Steps 1–6 need only the .NET SDK (step 4 also restores the repo-local ReportGenerator
+tool from NuGet). Steps 7–8 also need VS Code with the C# extension. Steps 9–12 need
+Docker.
 
 ## What's inside
 
@@ -111,23 +111,31 @@ dotnet watch --project src/DotnetDockerSmoketest.Api        # hot reload
 Open the repository root as the VS Code workspace folder, so that `.vscode/` applies
 (launch configuration, tasks and extension recommendations).
 
-Two Microsoft extensions are involved (both listed in `.vscode/extensions.json`):
+The only C# extension needed is **C#** (`ms-dotnettools.csharp`). It is open source and
+provides code intelligence and the **debugger**. Everything in this repo works without a
+Microsoft account.
 
-- **C#** (`ms-dotnettools.csharp`): open source. It provides code intelligence and the
-  **debugger**, which is all that steps 5–7 need.
-- **C# Dev Kit** (`ms-dotnettools.csdevkit`): optional, and it builds on the C# extension.
-  It adds the **Testing** view, in-editor coverage, and the **C# Project Details** view
-  (packages, references, analyzers). It uses Visual Studio license terms: free for
-  individuals, education, open source and small teams. It shows a sign-in prompt on first
-  use, which you can dismiss; the extension doesn't enforce sign-in.
+**C# Dev Kit** (`ms-dotnettools.csdevkit`) is deliberately not used, and
+`.vscode/extensions.json` marks it as unwanted. It is closed source under Visual Studio
+license terms, and its features (the **Testing** view, in-editor coverage, the
+**C# Project Details** view) require signing in with a Microsoft account. The repo covers
+the same needs with plain tools instead:
 
-With C# Dev Kit, the single solution (`DotnetDockerSmoketest.slnx`) opens automatically,
-and its name appears in the status bar. If the status bar shows **C# Workspace Dev Mode**
-instead, the solution wasn't loaded.
+| Need | Without C# Dev Kit |
+|---|---|
+| Run tests | `dotnet test`, or the **test** task (*Tasks: Run Test Task*) |
+| Debug tests | the "Tests (xUnit runner)" launch configuration (see below) |
+| Coverage | the **coverage report** task, or the commands in [Coverage reports](#coverage-reports) |
 
-**Debugging:** set a breakpoint, for example in `TodoEndpoints.Create`. Then press **F5**
-and choose "DotnetDockerSmoketest.Api (http)". VS Code forwards port 5101 and opens the
-page.
+**Debugging the app:** set a breakpoint, for example in `TodoEndpoints.Create`. Then
+press **F5** and choose "DotnetDockerSmoketest.Api (http)". VS Code forwards port 5101 and
+opens the page.
+
+**Debugging tests:** set a breakpoint in a test, press **F5** and choose
+"Tests (xUnit runner)". VS Code asks for a test method filter: keep `*` for all tests,
+or enter a pattern such as `*Crud*`. This starts the test executable with xUnit's own
+console runner (see [Test platform](#test-platform)), so the same tests run as with
+`dotnet test`.
 
 ## Test
 
@@ -141,17 +149,12 @@ dotnet run --project tests/DotnetDockerSmoketest.Api.Tests
                                               # same tests via xUnit's own console runner (see below)
 ```
 
-In VS Code with C# Dev Kit, the **Testing** view lists and runs the tests, and
-**Run Tests with Coverage** opens a **Test Coverage** view with covered lines marked in the
-editor. The coverage tree also includes the test project and compiler-generated files
-under `obj/` (OpenAPI and validation source generators). Its totals are therefore lower
-than the coverage of the hand-written app code, so look at the per-file numbers.
-
 ### Coverage reports
 
-`dotnet test --coverage` only writes a coverage file. The VS Code route above is usually
-the most convenient way to view coverage. As an alternative that needs only the CLI (and
-CI later), the repo pins **ReportGenerator** as a local .NET tool in `dotnet-tools.json`:
+`dotnet test --coverage` only writes a coverage file. To turn it into something readable,
+the repo pins **ReportGenerator** as a local .NET tool in `dotnet-tools.json`. In VS Code,
+the **coverage report** task (*Tasks: Run Task*) runs all of the following, starting from
+a clean `TestResults/`:
 
 ```bash
 dotnet tool restore                           # once per machine: installs the pinned tools
@@ -183,14 +186,14 @@ current .NET test stack, which replaces the older **VSTest** platform. It differ
 - **The test project is an executable with two modes.** `OutputType` is `Exe`, and xUnit
   generates its entry point (`obj/…/XunitAutoGeneratedEntryPoint.cs`). That entry point
   picks the runner from the command line:
-  - **MTP mode** (started with `--server`): `dotnet test` and the VS Code **Testing** view
-    both start the executable this way. They get the same runner and the same registered
-    extensions, such as code coverage. The two differ only in how they build the project,
-    show results and collect coverage.
+  - **MTP mode** (started with `--server`): `dotnet test` starts the executable this way.
+    IDE test explorers that support MTP do the same. This mode has the registered MTP
+    extensions, such as code coverage.
   - **xUnit's own console runner** (any other start): this is what you get from
-    `dotnet run --project tests/…` or by running the binary directly. The tests are the
-    same, but MTP options such as `--coverage` or `--list-tests` are rejected. Use xUnit's
-    own syntax instead (`-method`, `-trait`, `-result-xml`; see `-?`).
+    `dotnet run --project tests/…`, by running the binary directly, or from the
+    "Tests (xUnit runner)" launch configuration. The tests are the same, but MTP options
+    such as `--coverage` or `--list-tests` are rejected. Use xUnit's own syntax instead
+    (`-method`, `-trait`, `-result-xml`; see `-?`).
 - **There are no VSTest packages.** `Microsoft.NET.Test.Sdk`, `xunit.runner.visualstudio`
   and `coverlet.collector` are missing on purpose. They only work with VSTest, so adding
   them back fixes nothing.
